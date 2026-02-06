@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+pip-audit
+python-multipart
+requests
+setuptools
+hashicorp vault (run hashicorp vaukt.exe in bash vault server -dev
+"note that dev mod only used for test" after that copy token on vault.client)
