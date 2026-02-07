@@ -1,0 +1,80 @@
+# docker-compose برای محیط توسعه SmartProposal
+version: '3.8'
+
+services:
+  # سرویس بک‌اند FastAPI
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smartproposal-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount کردن کد برای hot reload در توسعه
+      - ./app:/app/app
+      - ./uploads:/app/uploads
+      - ./feedback.json:/app/feedback.json
+    environment:
+      - PYTHONUNBUFFERED=1
+      - ENVIRONMENT=development
+    restart: unless-stopped
+    networks:
+      - smartproposal-network
+
+  # سرویس فرانت‌اند React
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: smartproposal-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+      - CHOKIDAR_USEPOLLING=true
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - smartproposal-network
+
+  # دیتابیس PostgreSQL 
+  db:
+    image: postgres:15-alpine
+    container_name: smartproposal-db
+    environment:
+      - POSTGRES_USER=smartproposal
+      - POSTGRES_PASSWORD=smartproposal_dev
+      - POSTGRES_DB=smartproposal
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - smartproposal-network
+
+  # Redis 
+  redis:
+    image: redis:7-alpine
+    container_name: smartproposal-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - smartproposal-network
+
+networks:
+  smartproposal-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+
+
+
+
