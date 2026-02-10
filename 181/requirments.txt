@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+pip-audit
+python-multipart
+requests
+setuptools
